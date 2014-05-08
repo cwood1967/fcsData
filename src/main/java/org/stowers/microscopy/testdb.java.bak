@@ -1,0 +1,31 @@
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.stowers.simrUtils.omeroConnection;
+
+import fcs.imagetools.dbutils.DbQuery;
+import fcs.imagetools.dbutils.ImagePlateWell;
+import fcs.imagetools.OmeToOmero;
+
+public class testdb {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		omeroConnection conn = new omeroConnection(
+				"cjw", "v8u#-cp6", "omero", "Microscopy");
+		String tmpdir = "/tmp";
+		
+		OmeToOmero oto = new OmeToOmero(conn, tmpdir);
+		
+		//oto.setImageListFromPlate("ccdata", "Nov_06_2012", "000");
+		System.out.println(oto.checkForDatasetByName("10042012ref.mdb"));
+		conn.disconnect();
+	}
+
+}

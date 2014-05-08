@@ -1,0 +1,89 @@
+
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.process.ShortProcessor;
+import loci.formats.CoreMetadata;
+import loci.formats.FormatException;
+import loci.formats.in.ZeissLSMReader;
+
+public class TestBf {
+
+//	static String filename = "/Volumes/unixhomes/cjw/OME_data/OME/Aug_06_2008-Sub11/000_AutoScan.mdb/YDR167W_Well_46.mdb/YDR167W_zoomf_Aug_06_2008_46_0_9.lsm";
+	
+	static String filename = "/Volumes/projects/jjl/public/Caleb Bailey/091312_c8161mix_t1.lsm";
+	public static void main(String[] args) throws IOException, FormatException {
+
+//		use the bioformats ZeissLSMReader to open and read the file
+		ZeissLSMReader reader = new ZeissLSMReader();
+		
+		reader.setId(filename);
+		
+		// LittleEndian is important for reading and formatting the bytes
+		System.out.println(reader.isLittleEndian());
+		
+		//here you can get the basic information from the file
+		//no pixels have been read yet
+		int width = reader.getSizeX();
+		int height = reader.getSizeY();
+		int nchannels = reader.getSizeC();
+		int bitdepth = reader.getBitsPerPixel();
+		int npixels = width*height;
+		System.out.println(nchannels + " " + npixels + " " + bitdepth);
+		System.out.println(reader.getSizeT() + " " + reader.getSizeZ());
+
+//		getCoreMetaData returns an array = each element is for a different series (what is a series????)
+		CoreMetadata[] metadataArray = reader.getCoreMetadata();
+//		just get the first one as an example (there only was one for the files I tested)
+		CoreMetadata metadata = metadataArray[0];
+		
+//		this will get a list of all keys the metadata
+		Enumeration<String> keys = metadata.seriesMetadata.keys();
+		
+//	go through all of the keys and match some patterns	
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			if (key.matches("(.*)Detection Channel Name($)")) {
+				System.out.println("Channel " + key + " " + metadata.seriesMetadata.get(key).toString());
+			}
+			if (key.matches("(.*)Laser(.*)")) {
+				System.out.println("Channel " + key + " " + metadata.seriesMetadata.get(key).toString());
+			}
+			if (key.matches("(.*)Wave(.*)")) {
+				System.out.println("Channel " + key + " " + metadata.seriesMetadata.get(key).toString());
+			}
+			if (key.matches("(.*)Illumination(.*)")) {
+				System.out.println("Channel " + key + " " + metadata.seriesMetadata.get(key).toString());
+			}
+		}
+		
+//		also do this if you know exactly the key to look for
+		Double phdim = (Double)reader.getSeriesMetadataValue("DetectionChannel #1 Pinhole Diameter");
+		
+		System.out.println("Pinhole Diameter: " + phdim);
+//		below will read the bytes into a short array and disply
+		byte[] pbytes = new byte[npixels*bitdepth];
+		pbytes = reader.openBytes(nchannels -1);
+		short[] plane = new short[npixels];
+		
+		int bindex = 0;
+		for (int i =0; i< npixels; i++) {
+			plane[i] = (short)(((pbytes[bindex + 1] & 0xFF) << 8) + (pbytes[bindex] & 0xFF));
+			bindex += 2;
+		}
+		reader.close();
+	
+		ShortProcessor processor = new ShortProcessor(width, height);
+		
+		processor.setPixels(plane);
+		ImagePlus imp = new ImagePlus("My Image", processor);
+				
+		imp.show();
+		System.out.println(System.getProperty("os.name"));
+	}
+
+	
+}

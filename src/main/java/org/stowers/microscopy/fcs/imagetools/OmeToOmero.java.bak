@@ -1,0 +1,85 @@
+package fcs.imagetools;
+
+import java.rmi.ServerError;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+
+//import loci.common.services.ServiceFactory;
+
+
+import org.stowers.simrUtils.OmeroCommon;
+import org.stowers.simrUtils.omeroConnection;
+
+import fcs.imagetools.dbutils.DbQuery;
+import fcs.imagetools.dbutils.ImagePlateWell;
+
+public class OmeToOmero {
+
+	private omeroConnection conn = null;
+	private List<Integer> imageList = null;
+	private Set<Integer> imageSet = null;
+	private String plate;
+	private String part;
+	private String datasetName;
+	private String projectName;
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		// omeroConnection conn = new omeroConnection(user, password, host,
+		// group)
+		// originalFile ofile = new originalFile(image_id, filepath)
+	}
+
+	public OmeToOmero(omeroConnection conn, String tmpdir) {
+		this.conn = conn;
+	}
+
+	public void setImageList(List imageList) {
+		this.imageList = imageList;
+	}
+
+	public void setImageListFromPlate(String schema, String plate, String part) {
+		HashMap<Integer, ImagePlateWell> ipw = DbQuery.imagesFromPlate(
+				schema, plate, part);
+		
+		imageSet = ipw.keySet();
+		this.plate = plate;
+		this.part = part;
+		this.datasetName = plate + "_" + part;
+		
+	}
+
+	public void copyImageSet() {
+		
+	}
+	
+	public void copyimage(int image_id, String tmpdir, long dsid) {
+		originalFile ofile = new originalFile(image_id, tmpdir);
+		if (ofile.getIsFileValid()) {
+			ofile.downloadAndSaveFile();
+			long iid = ofile.copyToOmero(conn, dsid);
+		}
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	
+	public void setDatasetName(String datasetName) {
+		this.datasetName = datasetName;
+	}
+	
+	public boolean checkForDatasetByName(String name) {
+		
+		OmeroCommon x = new OmeroCommon(conn);
+		boolean res = x.checkForObjectByName("Dataset", name);
+		
+		return res;
+	}
+}

@@ -1,0 +1,172 @@
+package fcs.imagetools;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.File;
+
+import org.stowers.simrUtils.ImageImporter;
+import org.stowers.simrUtils.omeroConnection;
+
+public class originalFile extends fcsdata {
+
+	private int file_id;
+	private String urlprefix = "http://ome/cgi-bin/omeis/?Method=ReadFile&FileID=";
+	private String image_url;
+	private String imagepath;
+	private String imagename;
+	private File imageFile;
+	private String tmpdir;
+
+	
+	
+	public originalFile(int image_id, String tmpdir) {
+		super(image_id);
+		this.image_id = image_id;
+
+		if (tmpdir.charAt(tmpdir.length() - 1) == '/') {
+			this.tmpdir = tmpdir;
+		} else {
+			this.tmpdir = tmpdir + "/";
+		}
+
+		int x = findFileId();
+		
+		image_url = urlprefix + Integer.toString(file_id);
+	}
+
+	public boolean getIsFileValid() {
+		if (file_id > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public File getImageFile() {
+		return imageFile;
+	}
+	
+	public void deleteImageFile() {
+		imageFile.delete();
+	}
+	
+	public int getFileId() {
+		return file_id;
+	}
+	
+	public void downloadAndSaveFile() {
+		
+		if (file_id < 0) {
+			return;
+		}
+		try {
+			URL url = new URL(image_url);
+			URLConnection urlconn = url.openConnection();
+			String ctype = urlconn.getContentType();
+			int clength = urlconn.getContentLength();
+
+			InputStream stream = urlconn.getInputStream();
+			InputStream in = new BufferedInputStream(stream);
+
+			int bytesread = 0;
+			int totalbytes = 0;
+			//int bcount = 0;
+			ArrayList<Byte> b = new ArrayList<Byte>();
+			while (bytesread != -1) {
+				byte[] data = new byte[512 * 512 * 4];
+				bytesread = in.read(data);
+				if (bytesread == -1)
+					break;
+				for (int i = 0; i < bytesread; i++) {
+					b.add(data[i]);
+				}
+				totalbytes += bytesread;
+			}
+			
+			imageFile.createNewFile();
+			 byte[] outbytes = new byte[b.size()];
+			
+			 int gg  = 0; 
+			 for (int ib = 0; ib < b.size(); ib++) {
+				 outbytes[ib] = b.get(ib).byteValue();
+				 gg =ib;
+			 }
+
+			
+			FileOutputStream ostream = new FileOutputStream(imageFile);
+			ostream.write(outbytes);
+			ostream.flush();
+			ostream.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void setNameFromImagepath() {
+		String slash = System.getProperty("file.separator");
+		String[] pathsplit = imagepath.split(slash);
+		imagename = pathsplit[pathsplit.length - 1];
+		String tmpfilepath = tmpdir + imagename;
+
+		imageFile = new File(tmpfilepath);
+
+	}
+
+	private int findFileId() {
+
+		try {
+			// Statement st =
+			// conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+			// ResultSet.CONCUR_UPDATABLE);
+
+			String query = "select file_id, path from fileinfo f "
+					+ "where image_id  = (?)";
+
+			PreparedStatement ps = conn.prepareStatement(query);
+			ps.setInt(1, image_id);
+
+			ResultSet rs = ps.executeQuery();
+			boolean hasresult = rs.next();
+			if (hasresult) {
+				this.file_id = rs.getInt(1);
+				this.imagepath = rs.getString(2);
+				setNameFromImagepath();
+			} else {
+				this.file_id = -1;
+			}
+			return file_id;
+		}
+
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.file_id = -1;
+		}
+		return file_id;
+	}
+
+	public long copyToOmero(omeroConnection connection, Long dsid) {
+		
+		String host = connection.host;
+		String key = connection.getKey();
+		String[] paths = { imageFile.getAbsolutePath() } ;
+		
+		ImageImporter importer = new ImageImporter();
+		List<Long> pidlist = importer.importfile(key, host, dsid, paths);
+		
+		return pidlist.get(0).longValue();
+	}
+}

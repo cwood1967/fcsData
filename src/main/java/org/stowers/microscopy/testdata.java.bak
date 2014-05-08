@@ -1,0 +1,66 @@
+import java.sql.SQLException;
+import java.util.Hashtable;
+import java.util.ArrayList;
+
+import org.stowers.simrUtils.omeroConnection;
+
+import fcs.imagetools.fcsdata;
+import fcs.imagetools.originalFile;
+import fcs.imagetools.dbutils.DbQuery;
+
+public class testdata {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		try {
+			ArrayList<Long> times = new ArrayList<Long>();
+			String user = "cjw";
+			String password = "v8u#-cp6";
+			String host = "omero";
+			String group = "Microscopy";
+
+			omeroConnection conn = new omeroConnection(user, password,
+					host, group);
+
+			int n = 26050;
+			
+			for (int i = 0; i < 10; i++) {
+				long time1 = System.nanoTime();
+				originalFile data = new originalFile(n + i, "/tmp/");
+				System.out.println("NNN: " + n + " " + data.getFileId());
+				if (data.getIsFileValid()) {
+					data.downloadAndSaveFile();
+
+					String key = conn.getKey();
+	
+					long iid = data.copyToOmero(conn, (long) 3153);
+					System.out.println("Pixel Id " + iid);
+				}
+				
+				if (data.getIsFileValid())
+					data.deleteImageFile();
+				long time2 = System.nanoTime();
+				System.out.println((float)(time2-time1)*1e-6);
+				times.add(time2-time1);
+			}
+			
+			conn.disconnect();
+			
+			long total = 0;
+			for ( Long t : times) {
+				total += t;
+			}
+			
+			System.out.println(1e-9*total + " " + 1e-9*(float)total/times.size());
+		}
+
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}

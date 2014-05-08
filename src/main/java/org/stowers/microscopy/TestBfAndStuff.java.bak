@@ -1,0 +1,108 @@
+
+import java.io.IOException;
+import java.util.Enumeration;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
+import ij.process.FloatProcessor;
+import ij.process.AutoThresholder;
+import ij.process.AutoThresholder.Method;
+import ij.plugin.filter.GaussianBlur;
+import loci.formats.CoreMetadata;
+import loci.formats.IFormatReader;
+import loci.formats.ChannelSeparator;
+import loci.formats.FormatException;
+import loci.formats.ImageReader;
+import loci.formats.ClassList;
+import loci.formats.in.ZeissLSMReader;
+
+public class TestBfAndStuff {
+
+	static String filename = "/Volumes/unixhomes/cjw/OME_data/OME/Aug_06_2008-Sub11/000_AutoScan.mdb/YDR167W_Well_46.mdb/YDR167W_zoomf_Aug_06_2008_46_0_9.lsm";
+	
+	public static void main(String[] args) throws IOException, FormatException {
+		// TODO Auto-generated method stub
+	
+//		ImageReader reader = new ImageReader(ClassList<ZeissLSMReader> classlist);
+		ZeissLSMReader reader = new ZeissLSMReader();
+		
+		reader.setId(filename);
+		
+		System.out.println(reader.isLittleEndian());
+		int width = reader.getSizeX();
+		int height = reader.getSizeY();
+		int nchannels = reader.getSizeC();
+		int bitdepth = reader.getBitsPerPixel();
+		int npixels = width*height;
+		System.out.println(nchannels + " " + npixels + " " + bitdepth);
+		byte[] pbytes = new byte[npixels*bitdepth];
+		pbytes = reader.openBytes(nchannels -2);
+		
+		CoreMetadata[] metadataArray = reader.getCoreMetadata();
+		CoreMetadata metadata = metadataArray[0];
+		Enumeration<String> keys = metadata.seriesMetadata.keys();
+		
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			if (key.matches("(.*)Detection Channel Name($)")) {
+				System.out.println(key + " " + metadata.seriesMetadata.get(key).toString());
+			}
+		}
+		if (1 == 1) {
+			return;
+		}
+		short[] plane = new short[npixels];
+		int bindex = 0;
+		for (int i =0; i< npixels; i++) {
+			plane[i] = (short)(((pbytes[bindex + 1] & 0xFF) << 8) + (pbytes[bindex] & 0xFF));
+			bindex += 2;
+		}
+		
+//		for (int i = 0; i < 20 ; i++) {
+//			System.out.println(plane[i]);	
+//		}
+//	
+		reader.close();
+	
+		ShortProcessor processor = new ShortProcessor(width, height);
+		
+		processor.setPixels(plane);
+		ImageProcessor bp = processor.convertToByte(true);
+		ImagePlus imp = new ImagePlus("My Image", processor);
+		//processor.setHistogramRange(processor.getMin(), processor.getMin());
+		//processor.setHistogramSize(256);
+		int[] hist = bp.getHistogram();
+		
+		
+		AutoThresholder autothresh = new AutoThresholder();
+		String[] ms = autothresh.getMethods();
+		
+		int thresh = autothresh.getThreshold("MaxEntropy", hist);
+		
+		GaussianBlur gb = new GaussianBlur();
+		gb.blurGaussian(processor, 7., 7., .002);
+		System.out.println(hist.length);
+		System.out.println("Threshold " + thresh);
+		System.out.println(processor.getHistogramMax() + " " + processor.getHistogramSize());
+//		for (int i = 0; i < 256 ; i++) {
+//			if (hist[i] > -1) {
+//				System.out.println(i + " " + hist[i]);	
+//			}
+//		}
+		
+		//ImagePlus imp2 = 
+		imp.duplicate().show();
+		ImagePlus imp2 = imp.duplicate();
+		imp2.getProcessor().setAutoThreshold(Method.Mean, true);
+		imp2.show();
+		processor.setAutoThreshold(Method.MaxEntropy, true);
+		System.out.println(processor.getAutoThreshold());
+		
+		imp.show();
+	}
+
+	
+}

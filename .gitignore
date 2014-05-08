@@ -1,0 +1,8 @@
+.classpath
+.project
+.settings/
+.DS_Store
+jars
+plugins
+*~
+/target
