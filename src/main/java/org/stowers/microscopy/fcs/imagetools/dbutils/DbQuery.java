@@ -1,10 +1,10 @@
-package fcs.imagetools.dbutils;
+package org.stowers.microscopy.fcs.imagetools.dbutils;
 
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.sql.*;
 
-import fcs.imagetools.dbutils.ImagePlateWell;
+import org.stowers.microscopy.fcs.imagetools.dbutils.ImagePlateWell;
 
 public class DbQuery {
 

@@ -1,5 +1,4 @@
-package fcs.imagetools.dbutils;
-
+package org.stowers.microscopy.fcs.imagetools.dbutils;
 
 //import java.sql.PreparedStatement;
 //import java.sql.ResultSet;

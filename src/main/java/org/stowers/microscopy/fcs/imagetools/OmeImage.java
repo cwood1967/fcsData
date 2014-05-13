@@ -1,4 +1,5 @@
-package fcs.imagetools;
+package org.stowers.microscopy.fcs.imagetools;
+
 
 import ij.ImagePlus;
 import ij.process.FloatProcessor;

@@ -7,7 +7,7 @@ import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 
 
-import fcs.imagetools.OmeImage;
+import org.stowers.microscopy.fcs.imagetools.OmeImage;
 
 public class Image_from_ome implements PlugIn {
 

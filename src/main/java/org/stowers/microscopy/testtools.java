@@ -1,6 +1,8 @@
+package org.stowers.microscopy;
+
 import ij.CompositeImage;
 import ij.ImageJ;
-import fcs.imagetools.OmeImage;
+import org.stowers.microscopy.fcs.imagetools.OmeImage;
 
 public class testtools {
 
