@@ -87,12 +87,12 @@ public class fcsdata {
 		
 			rs.last();
 			int size = rs.getRow();
-			System.out.println(size);
+//			System.out.println(size);
 			rs.beforeFirst();
 			if (size > 0) {
 				rs.next();
 				server_id = rs.getInt(1);
-				System.out.println("Server id " + server_id);
+//				System.out.println("Server id " + server_id);
 				width = rs.getInt(2);
 				height = rs.getInt(3);
 				channels = rs.getInt(4);

@@ -22,6 +22,17 @@ public class YeastSrm extends SRM {
         setup("sdsdsd", imp);
     }  
     
+    public YeastSrm(ImagePlus oimp) {
+        this.width = oimp.getWidth();
+        this.height = oimp.getHeight();
+
+        this.imgArray = 
+        		(byte[])oimp.getProcessor().convertToByteProcessor().getPixels(); 
+        ip = new ByteProcessor(width, height, imgArray);
+        ImagePlus imp = new ImagePlus("Original" , ip);
+        setup("sdsdsd", imp);
+    }  
+    
     public void setQval(float q) {
         Q = q;
     }
@@ -40,6 +51,11 @@ public class YeastSrm extends SRM {
 
     }
 
+    public ImagePlus ijSRM(boolean averages) {
+    	
+    	ImagePlus resip = srm2D(ip, averages);
+    	return resip;
+    }
     public int[] ijSRMregions() {
     /* this assumes that the imput is a byte array, because that is what the 
      * SRM algorithm implementation requires

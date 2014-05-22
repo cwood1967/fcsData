@@ -33,9 +33,9 @@ public class YeastSRMTest extends TestCase {
         YeastSrm srm = new YeastSrm(16,16, imgArray);
         srm.setQval(10.f);
         float[] resArray = srm.ijSRMavg();
-        for (int i = 0; i < 256; i++) {
-            System.out.println(resArray[i]); 
-        }
+//        for (int i = 0; i < 256; i++) {
+//            System.out.println(resArray[i]); 
+//        }
 
         assertNotNull(resArray);
     }
@@ -64,9 +64,6 @@ public class YeastSRMTest extends TestCase {
         YeastSrm srm = new YeastSrm(16,16, imgArray);
         srm.setQval(10.f);
         int[] resArray = srm.ijSRMregions();
-        for (int i = 0; i < 256; i++) {
-            System.out.println(resArray[i]); 
-        }
 
         assertNotNull(resArray);
     }

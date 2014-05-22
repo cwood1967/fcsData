@@ -52,7 +52,9 @@ public class OmeImage extends fcsdata {
 		}
 	}
 	
-	
+	public short[] getPixels() {
+		return pixels;
+	}
 	public ImagePlus getImage() {
 		return image;
 	}
