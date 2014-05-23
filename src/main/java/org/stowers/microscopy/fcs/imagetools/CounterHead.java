@@ -18,20 +18,21 @@ public class CounterHead {
 		if (args.length > 0) {
 			num = Integer.parseInt(args[0]);
 		}
-		// ExecutorService executor = Executors.newFixedThreadPool(num);
-		ExecutorService executor = Executors.newCachedThreadPool();
-		List<Future<Integer>> countlist = new ArrayList<Future<Integer>>();
+		ExecutorService executor = Executors.newFixedThreadPool(16);
+//		ExecutorService executor = Executors.newCachedThreadPool();
+		List<Future<Long>> countlist = new ArrayList<Future<Long>>();
 
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < 500; i++) {
 			int id = i + 22000;
 			Callable counter = new PhotonCounter(id);
-			Future<Integer> future = executor.submit(counter);
+			Future<Long> future = executor.submit(counter);
 			countlist.add(future);
 		}
 
 		float total = 0.f;
-		for (Future<Integer> f : countlist) {
+		for (Future<Long> f : countlist) {
 			try {
+				System.out.println(f.get());
 				total += f.get();
 			} catch (Exception e) {
 				e.printStackTrace();

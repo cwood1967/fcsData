@@ -10,11 +10,11 @@ public class SingleCounterHead {
 	}
 
 	public static void main(String args[]) {
-		for (int i = 0; i < 200; i++) {
-			int id = i + 12000;
+		for (int i = 0; i < 100; i++) {
+			int id = i + 22000;
 			PhotonCounter counter = new PhotonCounter(id);
 			try {
-				int c = counter.call();
+				long c = counter.call();
 			}
 			catch (Exception e) {
 				e.printStackTrace();

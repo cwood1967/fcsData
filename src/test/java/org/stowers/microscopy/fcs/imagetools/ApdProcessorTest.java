@@ -19,10 +19,9 @@ public class ApdProcessorTest extends TestCase {
 		image.createImagePlus();
 		ImagePlus imp = image.getImage();
 		ImageProcessor ip = imp.getProcessor();
-		ip = ip.convertToShortProcessor();
 		ApdProcessor amp = new ApdProcessor(image.width, image.height);
 		ip.setSliceNumber(0);
-		short[] pixels = (short[])ip.getPixels();
+		float[] pixels = (float[])ip.getPixels();
 		amp.setPixels(pixels);
 
 		int res = amp.countAboveThreshold(0);
