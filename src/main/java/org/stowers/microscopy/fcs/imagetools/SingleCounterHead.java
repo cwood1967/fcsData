@@ -10,8 +10,8 @@ public class SingleCounterHead {
 	}
 
 	public static void main(String args[]) {
-		for (int i = 0; i < 100; i++) {
-			int id = i + 22000;
+		for (int i = 0; i < 1000; i++) {
+			int id = i + 4000;	
 			PhotonCounter counter = new PhotonCounter(id);
 			try {
 				long c = counter.call();
