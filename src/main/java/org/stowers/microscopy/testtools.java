@@ -47,7 +47,7 @@ public class testtools {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		//x.showimage(ci);
+//		x.showimage(ci);
 		//x.savePNG(ci);
 		long t1 = System.nanoTime();
 		System.out.println("dfdfdfdfdfdfdfdfdfd");
