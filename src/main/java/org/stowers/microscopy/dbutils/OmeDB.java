@@ -21,7 +21,7 @@ import org.apache.commons.beanutils.DynaBean;
  */
 public class OmeDB {
 
-	final String dburl = "jdbc:postgresql://ome/ome?user=cjw&password=rdf59gt2";
+	final String dburl = "jdbc:postgresql://ome/ome?user=cjw&password=xxxxxx";
 	Connection conn = null;
 /**
  * The constructor for this class - it take no parameters. It creates the
