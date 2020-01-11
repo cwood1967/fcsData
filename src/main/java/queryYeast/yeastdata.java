@@ -11,7 +11,7 @@ public class yeastdata {
 	Connection db;
 	String url = "jdbc:postgresql://ome:5432/ome";
 	String username = "cjw";
-	String password = "rdf59gt2";
+	String password = "xxxxxxx";
 	String [] columnNames;
 	int [] columnTypes;
 	String [] rsData;
